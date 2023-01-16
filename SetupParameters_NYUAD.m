@@ -12,59 +12,29 @@ pa.thetaDirs = thetas;
 radius_stim = 0;                                                            % Eccentricity of stimulus
 pa.stimX_deg = radius_stim*cosd(thetas);                                 
 pa.stimY_deg = radius_stim*sind(thetas);
-pa.stimulusSizeDeg = 2.5;                                                  % Radius
+pa.stimulusSizeDeg = 5;                                                  % Radius
 pa.apertureLipConst = 1.2;                                                   % Can shrink the stimulus to have small border: 1 means there is no border
 pa.screenAperture = pa.apertureLipConst*pa.stimulusSizeDeg;                % aperture after considering border
-pa.numberOfDots = 32;     %22                                                 % number of dots
+pa.numberOfDots = 80;     %22                                                 % number of dots
 
-conditionNow = 7;
+conditionNow = 1;
 
 switch conditionNow
     
     case 1
-pa.numberOfRepeats = 20;                                                % number of blocks to complete
+pa.numberOfRepeats = 10;                                                % number of blocks to complete
 pa.trialDuration = 1.5;                                                      % duration of stimulus
-pa.ITI = 4.5;                                                            % duration between stimuli
-pa.numberOfBlanks = 5; %
-pa.throwaway = 5;   %30 seconds                                   % # of trials to throwaway at the beginning and end
-
-    case 2
-  pa.numberOfRepeats = 11;                                             % number of blocks to complete
-pa.trialDuration = 1.5;                                                      % duration of stimulus
-pa.ITI = 10.5;                                                                % duration between stimuli
-pa.numberOfBlanks = 2; %
-pa.throwaway = 1;   %12 seconds                                    % # of trials to throwaway at the beginning and end
-      
-    case 3
- pa.numberOfRepeats = 20;                                               % number of blocks to complete
-pa.trialDuration = 0.5;                                                      % duration of stimulus
-pa.ITI = 5.5;                                                                % duration between stimuli
-pa.numberOfBlanks = 5; %
-pa.throwaway = 5;   %30 seconds                                 % # of trials to throwaway at the beginning and end
-
-    case 4
-pa.numberOfRepeats = 11;                                             % number of blocks to complete
-pa.trialDuration = 3;                                                      % duration of stimulus
-pa.ITI = 9;                                                                % duration between stimuli
-pa.numberOfBlanks = 1; %
-
-    case 5
-pa.numberOfRepeats = 21;                                             % number of blocks to complete
-pa.trialDuration = 3;                                                      % duration of stimulus
-pa.ITI = 3;                                                                % duration between stimuli
-pa.numberOfBlanks = 4; %
-
-    case 6 %change pause time in cueintegration
-pa.numberOfRepeats = 29;                                             % number of blocks to complete
-pa.trialDuration = 3;                                                      % duration of stimulus
-pa.ITI = 1.5;                                                                % duration between stimuli
-pa.numberOfBlanks = 4; %
-
-    case 7 %change pause time in cueintegration
-pa.numberOfRepeats = 25;                                             % number of blocks to complete
+pa.ITI = 3;                                                            % duration between stimuli
+pa.numberOfBlanks = 10; %
+pa.conditionNames   = {'monoL','monoR','bino','comb','blank'};          % Stimulus conditions
+pa.pause = 15; % seconds of blank screen at the end
+    case 2 %change pause time in cueintegration
+pa.numberOfRepeats = 40;                                             % number of blocks to complete
 pa.trialDuration = 1.5;                                                      % duration of stimulus
 pa.ITI = 3;                                                                % duration between stimuli
-pa.numberOfBlanks = 12; %
+pa.numberOfBlanks = 10; %
+pa.conditionNames   = {'comb','blank'};          % Stimulus conditions
+pa.pause = 15;
 end
       
 pa.fixationAcqDura = 0;                                                    % duration of fixation prior to stimulus
@@ -73,7 +43,6 @@ pa.loops = 2;   % 1                                                           % 
 pa.reversePhi = 1;                                                         % dots change color on wrapping to reduce apparent motion
 pa.directions = [-1 1];                                                    % experiment directions (+1:towards, -1:away)
 pa.coherence = 1;                                                          % Motion coherence levels
-pa.conditionNames   = {'comb','blank'};          % Stimulus conditions
 pa.photo_align = 0;
 if VP.stereoMode == 1
     pa.numFlips = floor(pa.trialDuration*VP.frameRate/2);                  % every other frame for each eye when in interleaved stereo mode
@@ -94,7 +63,7 @@ pa.fixationRadius   = 0.6; %0.7;    (in ???)
 pa.fixationDotSize  = 7; %4;                    % fixation dot size (in pixels)
 pa.saccadeDotSize = 12; %in pixels
 pa.fixationDotColor  = [0 0 0]; % red
-pa.dotDiameterinDeg = 0.1;
+pa.dotDiameterinDeg = pa.fixationDotSize/VP.pixelsPerDegree;
 pa.dotDiameter = pa.dotDiameterinDeg * VP.pixelsPerDegree;
 pa.dotColor = [255, 255, 255, 255]; % white
 pa.dotSpacing = (pa.dotDiameterinDeg*1.5)/VP.degreesPerMm;  % in mm since dots are in mm
@@ -130,7 +99,7 @@ for r = 1:pa.numberOfRepeats
     pa.design = [pa.design; pa.temp_design];
 end
 
- whichBlank = find(pa.design(:,5)==2);
+ whichBlank = find(pa.design(:,5)==max(pa.design(:,5)));
  pa.design(whichBlank(randperm(numel(whichBlank),numel(whichBlank)-pa.numberOfBlanks)),:) = [];
 
 
@@ -143,15 +112,22 @@ pa.timeStamps = [repmat(1:(pa.ITI+pa.trialDuration)*VP.frameRate,1, ...
     1,(pa.ITI+pa.trialDuration)*VP.frameRate); zeros(1,pa.totalFrames)]';
 pa.fn = [];
 
-% TRcon = 1:3:186;
-% pa.dsCon = zeros(200,2);
-% pa.dsCon(TRcon,1) = pa.design(:,3)==1&pa.design(:,5)==1;
-% pa.dsCon(TRcon,2) = pa.design(:,3)==2&pa.design(:,5)==1;
 
-%     onset = sum(pa.dsCon,2);
-%      pa.dsTrial = zeros(size(onset,1),numel(find(onset)));     
-%     ind = sub2ind(size(pa.dsTrial),find(onset),(1:size(pa.dsTrial,2))');
-%     pa.dsTrial(ind) = 1;
+%condition wise design matrix
+
+ TRcon = 1:3:(pa.numberOfTrials * (pa.ITI+pa.trialDuration))./1.5;
+ pa.dsCon = zeros((pa.numberOfTrials * (pa.ITI+pa.trialDuration)+pa.pause)./1.5,2*(numel(pa.conditionNames)-1));
+ for iCue = 1:numel(pa.conditionNames)-1
+     pa.dsCon(TRcon,iCue*2-1) = pa.design(:,3)==1&pa.design(:,5)==iCue;
+     pa.dsCon(TRcon,iCue*2) = pa.design(:,3)==2&pa.design(:,5)==iCue;
+     
+ end
+ 
+%trial wise design matrix
+    onset = sum(pa.dsCon,2);
+    pa.dsTrial = zeros(size(onset,1),numel(find(onset)));     
+    ind = sub2ind(size(pa.dsTrial),find(onset),(1:size(pa.dsTrial,2))');
+    pa.dsTrial(ind) = 1;
     
 
 

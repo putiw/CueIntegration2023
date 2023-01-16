@@ -20,9 +20,9 @@ switch(Display) %Display Parameters
         VP.whiteValue = 255;
         VP.stereoMode = 8;         % set to 1 for a propixx
         VP.multiSample = 32;       % PTB will change automatically to max supported on your display
-    case 1 % NYUAD
+    case 1 % NYUAD MOCK
         VP.screenDistance = 880;   %mm
-        VP.IOD = 62.5;               %mm
+        VP.IOD = 66;               %mm
         VP.screenWidthMm = 711;
         %332.5;      %mm
         VP.screenHeightMm = VP.screenWidthMm*9/16; %207.8;     %mm
@@ -48,6 +48,7 @@ switch(Display) %Display Parameters
         VP.whiteValue = 255;
         VP.stereoMode = 8;         % set to 1 for a propixx
         VP.multiSample = 32;       % PTB will change automatically to max supported on your display
+
 end %Display Parameters Switch
 VP.centerPatch = 0.25;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -61,7 +62,7 @@ global GL;                            %Global GL Data Structure, Cannot 'BeginOp
 Screen('Preference', 'Verbosity', 3); % Increase level of verbosity for debug purposes:
 Screen('Preference','VisualDebugLevel', 3);%control verbosity and debugging, level:4 for developing, level:0 disable errors
 VP.screenID = max(Screen('Screens'));    %Screen for display.
-VP.screenID = 1;
+% VP.screenID = 1;
 switch Display
     case 1
         PsychImaging('AddTask','General','UseDataPixx'); % Tell PTB we want to display on a DataPixx device.

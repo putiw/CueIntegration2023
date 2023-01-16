@@ -26,7 +26,7 @@ VP.backGroundColor = backGroundColor;
 priorityLevel=MaxPriority(VP.window);
 Priority(priorityLevel);
 pa = SetupParameters_NYUAD(VP);
-pa.response = zeros(pa.numberOfTrials,1);
+pa.response = zeros(pa.numberOfTrials,2);
 kb = SetupKeyboard();
 pa.trialNumber = 0;
 fn = 1; %Frame 1
@@ -79,9 +79,9 @@ while ~kb.keyCode(kb.escKey) && OnGoing
             kb.keyIsDown = 0;
             while kb.keyIsDown == 0
                 [kb,~] = CheckKeyboard(kb); % if response with keyboard
-                %                 %    [kb,~] = CheckResponseButton_MRI(kb); % if response with response button MRI
+                                   %[kb,~] = CheckResponseButton_MRI(kb); % if response with response button MRI
             end
-            
+            pause(0.3)
             % Draw blank window until MRI triggers
             Screen('SelectStereoDrawbuffer', VP.window, 0);
             Screen('DrawTexture', VP.window, VP.bg(VP.curBg));
@@ -96,11 +96,13 @@ while ~kb.keyCode(kb.escKey) && OnGoing
             %waiting for trigger
             switch display
                 case 1 %nyuad
-                    kb.keyIsDown = 0;
+                                    
+                    Datapixx('RegWrRd');
+                    triggerStart = dec2bin(Datapixx('GetDinValues'));
+                    kb.keyIsDown = 0;  
                     while ~kb.keyIsDown
-                        [kb,~] = CheckTrigger_MRI(kb); % if response with response button MRI
-                        [kb,~] = CheckKeyboard(kb); % if response with keyboard
-                        
+                        [kb,~] = CheckTrigger_MRI(kb,triggerStart); % if response with response button MRI
+                        [kb,~] = CheckKeyboard(kb); % if response with keyboard                       
                     end
                 case 2 %puti laptop
                     kb.keyIsDown = 0;
@@ -129,7 +131,7 @@ while ~kb.keyCode(kb.escKey) && OnGoing
             
             % Get this trial's parameters
             if pa.trialNumber > pa.numberOfTrials
-                pause(21)
+                pause(pa.pause)
                 OnGoing = 0; % End experiment
                 break;
             else
@@ -226,10 +228,9 @@ while ~kb.keyCode(kb.escKey) && OnGoing
                         
                 end                
 
-%                 Screen('DrawText', VP.window, [pa.whichCondition '-' num2str(pa.trialNumber)],VP.Rect(3)/2-120,VP.Rect(4)/1.9);
 
                 Screen('DrawTexture', VP.window, VP.bg(VP.curBg));
-                Screen('DrawDots', VP.window, [0 0],pa.fixationDotSize,pa.fixationDotColor,[VP.Rect(3)./2 VP.Rect(4)./2],2);
+                 Screen('DrawDots', VP.window, [0 0],pa.fixationDotSize,pa.fixationDotColor,[VP.Rect(3)./2 VP.Rect(4)./2],2);
                 
             end
                         
@@ -265,11 +266,11 @@ while ~kb.keyCode(kb.escKey) && OnGoing
             
             Screen('SelectStereoDrawbuffer', VP.window, 0);
             Screen('DrawTexture', VP.window, VP.bg(VP.curBg));
-            Screen('DrawDots', VP.window, [0 0],pa.fixationDotSize,[1 1 1],[VP.Rect(3)./2 VP.Rect(4)./2],2);
+            Screen('DrawDots', VP.window, [0 0],pa.fixationDotSize,[255/5 255/5 255/5],[VP.Rect(3)./2 VP.Rect(4)./2],2);
             
             Screen('SelectStereoDrawbuffer', VP.window, 1);
             Screen('DrawTexture', VP.window, VP.bg(VP.curBg));
-            Screen('DrawDots', VP.window, [0 0],pa.fixationDotSize,[1 1 1],[VP.Rect(3)./2 VP.Rect(4)./2],2);
+            Screen('DrawDots', VP.window, [0 0],pa.fixationDotSize,[255/5 255/5 255/5],[VP.Rect(3)./2 VP.Rect(4)./2],2);
             
             VP.vbl = Screen('Flip', VP.window, [], dontClear);
             
@@ -282,7 +283,8 @@ while ~kb.keyCode(kb.escKey) && OnGoing
                 switch display
                     case 1
                         [kb,stop] = CheckResponseButton_MRI(kb); % if response with response button MRI
-                        pa.response(pa.trialNumber,:) = kb.resp;
+                        pa.response(pa.trialNumber,1) = kb.resp;
+                        pa.response(pa.trialNumber,2) = kb.secs;
                       
                     case 3                        
                         [kb,stop] = CheckResponseButton_MRI_CBI(kb); % if response with response button MRI
