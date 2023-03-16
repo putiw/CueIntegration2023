@@ -8,11 +8,11 @@ rng('shuffle'); % shuffle the random number generator seeds so you don't repeat!
 % These are the locations of the stimuli
 thetas = [0]+45;    %,180,270                                                       % Polar angle(s) of stimulus
 pa.thetaDirs = thetas;
- pa.rDirs = 0;                                                              % Eccentricity of circle
+pa.rDirs = 0;                                                              % Eccentricity of circle
 radius_stim = 0;                                                            % Eccentricity of stimulus
 pa.stimX_deg = radius_stim*cosd(thetas);                                 
 pa.stimY_deg = radius_stim*sind(thetas);
-pa.stimulusSizeDeg = 5;                                                  % Radius
+pa.stimulusSizeDeg = 6.6667;                                                  % Radius
 pa.apertureLipConst = 1.2;                                                   % Can shrink the stimulus to have small border: 1 means there is no border
 pa.screenAperture = pa.apertureLipConst*pa.stimulusSizeDeg;                % aperture after considering border
 pa.numberOfDots = 80;     %22                                                 % number of dots
@@ -22,19 +22,45 @@ conditionNow = 1;
 switch conditionNow
     
     case 1
-pa.numberOfRepeats = 10;                                                % number of blocks to complete
-pa.trialDuration = 1.5;                                                      % duration of stimulus
-pa.ITI = 3;                                                            % duration between stimuli
-pa.numberOfBlanks = 10; %
+pa.numberOfRepeats = 5;                                                % number of blocks to complete
+pa.trialDuration = 1;                                                      % duration of stimulus
+pa.ITI = 8;                                                            % duration between stimuli
+pa.numberOfBlanks = 0; %
 pa.conditionNames   = {'monoL','monoR','bino','comb','blank'};          % Stimulus conditions
-pa.pause = 15; % seconds of blank screen at the end
+pa.pause = 0; % seconds of blank screen at the end
+
     case 2 %change pause time in cueintegration
+pa.numberOfRepeats = 30;                                             % number of blocks to complete
+pa.trialDuration = 1.5;                                                      % duration of stimulus
+pa.ITI = 3;                                                                % duration between stimuli
+pa.numberOfBlanks = 30; %
+pa.conditionNames   = {'comb','blank'};          % Stimulus conditions
+pa.pause = 15;
+
+     case 3 %change pause time in cueintegration
 pa.numberOfRepeats = 40;                                             % number of blocks to complete
 pa.trialDuration = 1.5;                                                      % duration of stimulus
 pa.ITI = 3;                                                                % duration between stimuli
 pa.numberOfBlanks = 10; %
 pa.conditionNames   = {'comb','blank'};          % Stimulus conditions
 pa.pause = 15;
+ 
+    case 4 %change pause time in cueintegration
+pa.numberOfRepeats = 10;                                             % number of blocks to complete
+pa.trialDuration = 10.5;                                                      % duration of stimulus
+pa.ITI = 10.5;                                                                % duration between stimuli
+pa.numberOfBlanks = 0; %
+pa.conditionNames   = {'comb','blank'};          % Stimulus conditions
+pa.pause = 0;
+ 
+    case 5 %change pause time in cueintegration
+pa.numberOfRepeats = 22;                                             % number of blocks to complete
+pa.trialDuration = 3;                                                      % duration of stimulus
+pa.ITI = 6;                                                                % duration between stimuli
+pa.numberOfBlanks = 0; %
+pa.conditionNames   = {'comb','blank'};          % Stimulus conditions
+pa.pause = 24;
+
 end
       
 pa.fixationAcqDura = 0;                                                    % duration of fixation prior to stimulus
@@ -99,6 +125,7 @@ for r = 1:pa.numberOfRepeats
     pa.design = [pa.design; pa.temp_design];
 end
 
+
  whichBlank = find(pa.design(:,5)==max(pa.design(:,5)));
  pa.design(whichBlank(randperm(numel(whichBlank),numel(whichBlank)-pa.numberOfBlanks)),:) = [];
 
@@ -114,21 +141,22 @@ pa.fn = [];
 
 
 %condition wise design matrix
+pa.tr = 1;
+TRcon = 1:((pa.ITI+pa.trialDuration)/pa.tr):(pa.numberOfTrials * (pa.ITI+pa.trialDuration))./pa.tr;
 
- TRcon = 1:3:(pa.numberOfTrials * (pa.ITI+pa.trialDuration))./1.5;
- pa.dsCon = zeros((pa.numberOfTrials * (pa.ITI+pa.trialDuration)+pa.pause)./1.5,2*(numel(pa.conditionNames)-1));
- for iCue = 1:numel(pa.conditionNames)-1
-     pa.dsCon(TRcon,iCue*2-1) = pa.design(:,3)==1&pa.design(:,5)==iCue;
-     pa.dsCon(TRcon,iCue*2) = pa.design(:,3)==2&pa.design(:,5)==iCue;
-     
- end
+    pa.dsCon = zeros((pa.numberOfTrials * (pa.ITI+pa.trialDuration)+pa.pause)./1.5,2*(numel(pa.conditionNames)-1));
+    for iCue = 1:numel(pa.conditionNames)-1
+        pa.dsCon(TRcon,iCue*2-1) = pa.design(:,3)==1&pa.design(:,5)==iCue; %away
+        pa.dsCon(TRcon,iCue*2) = pa.design(:,3)==2&pa.design(:,5)==iCue; %toward
+    end
+
  
 %trial wise design matrix
     onset = sum(pa.dsCon,2);
     pa.dsTrial = zeros(size(onset,1),numel(find(onset)));     
     ind = sub2ind(size(pa.dsTrial),find(onset),(1:size(pa.dsTrial,2))');
     pa.dsTrial(ind) = 1;
-    
+
 
 
 %% Savefile parameters

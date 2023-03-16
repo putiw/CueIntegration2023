@@ -1,10 +1,11 @@
 function [VP, pa] = CueIntegration_NYUAD(display);
-addpath('HelperToolbox');
+addpath(genpath('HelperToolbox'));
 %change
 % subject = input('Enter subject [test]: ','s');
 % if isempty(subject)
 %     % error('Enter subject name to start experiment');
-%     subject = 'test';
+%     subject =
+%     'test';
 % end
 filename = get_info;
 %% Setup parameters and viewing geometry
@@ -17,7 +18,7 @@ VP = SetupDisplay_NYUAD(skipSync, backGroundColor, display);
 if VP.stereoMode == 8 && display ~=2
     Datapixx('SetPropixxDlpSequenceProgram',1); % 1 is for RB3D mode, 3 for setting up to 480Hz, 5 for 1440Hz
     Datapixx('RegWr');
-    
+     
     Datapixx('SetPropixx3DCrosstalkLR', 0); % minimize the crosstalk
     Datapixx('SetPropixx3DCrosstalkRL', 0); % minimize the crosstalk
 end
@@ -37,9 +38,9 @@ VP = MakeTextures(pa,VP);
 
 %% Generate new dot matrices for quick drawing rather than doing the calculations between frames
 Screen('SelectStereoDrawbuffer', VP.window, 0);
-Screen('DrawText', VP.window, 'Preparing Experiment...',VP.Rect(3)/2-130,VP.Rect(4)/2);
+Screen('DrawText', VP.window, 'Preparing Experiment...L',VP.Rect(3)/2-130,VP.Rect(4)/2);
 Screen('SelectStereoDrawbuffer', VP.window, 1);
-Screen('DrawText', VP.window, 'Preparing Experiment...',VP.Rect(3)/2-130,VP.Rect(4)/2);
+Screen('DrawText', VP.window, 'Preparing Experiment...R',VP.Rect(3)/2-130,VP.Rect(4)/2);
 VP.vbl = Screen('Flip', VP.window, [], dontClear);
 create_stim_NYUAD(VP,pa)
 s_size = strrep(num2str(pa.stimulusSizeDeg),'.','_'); % for indexing into the dot matrix structure created above.
@@ -69,11 +70,11 @@ while ~kb.keyCode(kb.escKey) && OnGoing
             % Draw blank window until button pressed
             Screen('SelectStereoDrawbuffer', VP.window, 0);
             Screen('DrawTexture', VP.window, VP.bg(VP.curBg));
-            Screen('DrawText', VP.window, 'Press a button to begin',VP.Rect(3)/2-120,VP.Rect(4)/2);
+            Screen('DrawText', VP.window, 'Press a button to begin...L',VP.Rect(3)/2-120,VP.Rect(4)/2);
             
             Screen('SelectStereoDrawbuffer', VP.window, 1);
             Screen('DrawTexture', VP.window, VP.bg(VP.curBg));
-            Screen('DrawText', VP.window, 'Press a button to begin',VP.Rect(3)/2-120,VP.Rect(4)/2);
+            Screen('DrawText', VP.window, 'Press a button to begin...R',VP.Rect(3)/2-120,VP.Rect(4)/2);
             VP.vbl = Screen('Flip', VP.window, [], dontClear);
             
             kb.keyIsDown = 0;
@@ -102,7 +103,7 @@ while ~kb.keyCode(kb.escKey) && OnGoing
                     kb.keyIsDown = 0;  
                     while ~kb.keyIsDown
                         [kb,~] = CheckTrigger_MRI(kb,triggerStart); % if response with response button MRI
-                        [kb,~] = CheckKeyboard(kb); % if response with keyboard                       
+                        %[kb,~] = CheckKeyboard(kb); % if response with keyboard                       
                     end
                 case 2 %puti laptop
                     kb.keyIsDown = 0;
