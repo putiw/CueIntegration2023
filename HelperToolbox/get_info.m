@@ -5,7 +5,7 @@ while keepasking
     prompt = {'Subject ID: ', 'Session: ', 'Run: '};
     numlines = 1;
     title = 'Experiment Parameters';
-    defAns = {'9999', '01', '1'};
+    defAns = {'0248', '01', '1'};
     info = inputdlg(prompt, title, numlines, defAns);
     
     subID = info{1};
